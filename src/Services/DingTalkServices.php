@@ -157,7 +157,6 @@ class DingTalkServices
             'deptId' => $deptId,
             'formComponentValues' => $formComponentValues,
         ];
-        var_dump($params);
         $startProcessInstanceRequest = new StartProcessInstanceRequest($params);
 
         try {
