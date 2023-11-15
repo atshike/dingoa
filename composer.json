@@ -20,11 +20,11 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=8.1",
-        "laravel/framework": ">=10",
         "alibabacloud/dingtalk": "^2.0",
         "ext-bcmath": "*"
     },
     "require-dev": {
+        "laravel/framework": ">=10",
         "laravel/pint": "^1.10"
     }
 }
