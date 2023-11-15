@@ -28,19 +28,12 @@ class DingTalkServices
 
     private string $cache_dingtalk_oa_access_token_key;
 
-    private string $user_id;
-
-    private string $appKey;
-
-    private string $appSecret;
-
-    public function __construct(array $config, string $user_id)
+    public function __construct($app = null)
     {
-        $this->cache_dingtalk_oa_access_token_key = 'dingtalk_access_token';
+        $this->app = $app;
+        $this->cache_dingtalk_oa_access_token_key = "dingtalk_access_token_{$app}";
         $access_token = Cache::get($this->cache_dingtalk_oa_access_token_key);
-        $this->appKey = $config['appKey'];
-        $this->appSecret = $config['appSecret'];
-        $this->user_id = $user_id;
+
         if (! empty($access_token)) {
             $this->access_token = $access_token;
         } else {
@@ -58,13 +51,16 @@ class DingTalkServices
         $config->regionId = 'central';
         $client = new Dingtalk2($config);
 
+        $appkey = config("services.dingtalk.oa.appkey_{$this->app}");
+        $appsecret = config("services.dingtalk.oa.appsecret_{$this->app}");
+
         $getAccessTokenRequest = new GetAccessTokenRequest([
-            'appKey' => $this->appKey,
-            'appSecret' => $this->appSecret,
+            'appKey' => $appkey,
+            'appSecret' => $appsecret,
         ]);
         $rs = $client->getAccessToken($getAccessTokenRequest);
 
-        $this->access_token = $rs->body->accessToken;
+        $this->access_token = $rs->body?->accessToken;
         Cache::put($this->cache_dingtalk_oa_access_token_key, $rs->body->accessToken, bcsub($rs->body->expireIn, 20));
     }
 
@@ -105,7 +101,7 @@ class DingTalkServices
             'endTime' => $endTime,
             'nextToken' => $nextToken,
             'maxResults' => $maxResults,
-            'userIds' => $userIds ?? $this->user_id,
+            'userIds' => $userIds,
             'statuses' => $statuses,
         ]);
 
@@ -140,9 +136,15 @@ class DingTalkServices
 
     /**
      * 发起审批.
-     * https://open.dingtalk.com/document/orgapp/create-an-approval-instance
+     *  https://open.dingtalk.com/document/orgapp/create-an-approval-instance
+     *
+     * @param string $processCode 模版
+     * @param string $originatorUserId 发起人userid
+     * @param array $dataList 表单数据内容
+     * @param int $deptId 发起人部门
+     * @return StartProcessInstanceResponse|null
      */
-    public function processCreate(string $processCode, array $dataList, int $deptId = -1): ?StartProcessInstanceResponse
+    public function processCreate(string $processCode, string $originatorUserId, array $dataList, int $deptId = -1): ?StartProcessInstanceResponse
     {
         $client = self::createClient();
         $startProcessInstanceHeaders = new StartProcessInstanceHeaders([]);
@@ -152,7 +154,7 @@ class DingTalkServices
             $formComponentValues[] = new formComponentValues($item);
         }
         $params = [
-            'originatorUserId' => $this->user_id,
+            'originatorUserId' => $originatorUserId,
             'processCode' => $processCode,
             'deptId' => $deptId,
             'formComponentValues' => $formComponentValues,
@@ -170,6 +172,7 @@ class DingTalkServices
 
     /**
      * 获取审批流模版.
+     * https://open.dingtalk.com/document/orgapp/obtain-the-form-schema
      */
     public function processCodesTemp(string $processCode): QuerySchemaByProcessCodeResponse
     {

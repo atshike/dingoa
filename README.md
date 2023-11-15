@@ -5,6 +5,15 @@
 ```
 composer require atshike/dingoa
 ```
+### 配置
+```
+'dingtalk' => [
+    'oa' => [
+        'appkey_**' => env('DINGTALK_OA_APP_KEY'),
+        'appsecret_**' => env('DINGTALK_OA_APP_SECRET'),
+    ]
+],
+```
 ### 使用
 ```
 use Atshike\Dingoa\Services\DingTalkServices;
