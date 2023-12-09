@@ -2,7 +2,7 @@
 
 namespace Atshike\Dingoa\Services;
 
-use AlibabaCloud\SDK\Dingtalk\Voauth2_1_0\Dingtalk as Dingtalk2;
+use AlibabaCloud\SDK\Dingtalk\Voauth2_1_0\Dingtalk as DingtalkToken;
 use AlibabaCloud\SDK\Dingtalk\Voauth2_1_0\Models\GetAccessTokenRequest;
 use AlibabaCloud\SDK\Dingtalk\Vworkflow_1_0\Dingtalk;
 use AlibabaCloud\SDK\Dingtalk\Vworkflow_1_0\Models\GetProcessInstanceHeaders;
@@ -49,7 +49,7 @@ class DingTalkServices
         $config = new Config([]);
         $config->protocol = 'https';
         $config->regionId = 'central';
-        $client = new Dingtalk2($config);
+        $client = new DingtalkToken($config);
 
         $appkey = config("services.dingtalk.oa.appkey_{$this->app}");
         $appsecret = config("services.dingtalk.oa.appsecret_{$this->app}");
@@ -138,11 +138,10 @@ class DingTalkServices
      * 发起审批.
      *  https://open.dingtalk.com/document/orgapp/create-an-approval-instance
      *
-     * @param string $processCode 模版
-     * @param string $originatorUserId 发起人userid
-     * @param array $dataList 表单数据内容
-     * @param int $deptId 发起人部门
-     * @return StartProcessInstanceResponse|null
+     * @param  string  $processCode 模版
+     * @param  string  $originatorUserId 发起人userid
+     * @param  array  $dataList 表单数据内容
+     * @param  int  $deptId 发起人部门
      */
     public function processCreate(string $processCode, string $originatorUserId, array $dataList, int $deptId = -1): ?StartProcessInstanceResponse
     {

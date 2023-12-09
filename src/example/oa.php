@@ -6,7 +6,7 @@ use Carbon\Carbon;
 $dingtalk = new DingTalkServices();
 // 发起审批
 $list = data_params();
-$rs = $dingtalk->processCreate('processCode','发起人_user_id', $list);
+$rs = $dingtalk->processCreate('processCode', '发起人_user_id', $list);
 echo "审批实例id: {$rs->body?->instanceId}";
 // 获取审批id列表
 $res = $dingtalk->processGetList('processCode', bcmul(Carbon::now()->startOfMonth()->timestamp, 1000));
